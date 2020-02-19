@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # This script will compile and install a static ffmpeg build with support for
 # nvenc on ubuntu. See the prefix path and compile options if edits are needed
 # to suit your needs.
@@ -71,7 +73,9 @@ InstallDependenciesOpenSUSE() {
 
 InstallNvidiaSDK() {
     echo "Installing the NVidia Video SDK"
-    sdk_version="9.0.20"
+    sdk_version="9.1.23"
+    # sdk_version="9.0.20"
+    # sdk_version="8.1.24"
     sdk_basename="Video_Codec_SDK_${sdk_version}"
     cd "$source_dir"
     if [ ! -f "${sdk_basename}.zip" ]; then
@@ -85,8 +89,10 @@ InstallNvidiaSDK() {
 InstallNvCodecIncludes() {
     echo "Installing Nv codec headers from https://github.com/FFmpeg/nv-codec-headers"
     cd "$source_dir"
-    git clone https://github.com/FFmpeg/nv-codec-headers
+    git clone https://github.com/FFmpeg/nv-codec-headers || echo "already exists"
     cd nv-codec-headers
+	# git checkout sdk/8.1
+	# git pull
     cp -a include/ffnvcodec "$inc_dir"
 }
 
@@ -119,9 +125,12 @@ BuildYasm() {
 BuildX264() {
     echo "Compiling libx264"
     cd $source_dir
-    wget -4 http://download.videolan.org/pub/x264/snapshots/last_x264.tar.bz2
-    tar xjf last_x264.tar.bz2
-    cd x264-snapshot*
+    # wget -4 http://download.videolan.org/pub/x264/snapshots/x264-snapshot-20191217-2245-stable.tar.bz2
+    # tar xjf x264-snapshot-20191217-2245-stable.tar.bz2
+    # cd x264-snapshot-20191217-2245-stable
+    wget -4 http://archive.ubuntu.com/ubuntu/pool/universe/x/x264/x264_0.155.2917+git0a84d98.orig.tar.gz
+    tar xzf x264_0.155.2917+git0a84d98.orig.tar.gz 
+    cd x264-0.155.2917+git0a84d98
     ./configure --prefix="$build_dir" --bindir="$bin_dir" --enable-pic --enable-shared
     make -j${cpus}
     make install
@@ -182,7 +191,8 @@ BuildVpx() {
 BuildFFmpeg() {
     echo "Compiling ffmpeg"
     cd $source_dir
-    ffmpeg_version="4.1.1"
+    ffmpeg_version="4.2.2"
+    # ffmpeg_version="4.1.1"
     if [ ! -f  ffmpeg-${ffmpeg_version}.tar.bz2 ]; then
         wget -4 http://ffmpeg.org/releases/ffmpeg-${ffmpeg_version}.tar.bz2
     fi
@@ -307,9 +317,10 @@ BuildOBS() {
         git clone https://github.com/obsproject/obs-studio
         cd obs-studio
     fi
+	#git checkout tags/24.0.2
     mkdir -p build
     cd build
-    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=$build_dir ..
+    LD_LIBRARY_PATH="${build_dir}/lib":\$LD_LIBRARY_PATH cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=$build_dir ..
     make -j${cpus}
     make install
 }
