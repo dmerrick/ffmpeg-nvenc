@@ -317,7 +317,7 @@ BuildOBS() {
         git clone https://github.com/obsproject/obs-studio
         cd obs-studio
     fi
-	#git checkout tags/24.0.2
+	git checkout tags/24.0.6
     mkdir -p build
     cd build
     LD_LIBRARY_PATH="${build_dir}/lib":\$LD_LIBRARY_PATH cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=$build_dir ..
