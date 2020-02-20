@@ -9,6 +9,7 @@ set -x
 #Authors:
 #   Linux GameCast ( http://linuxgamecast.com/ )
 #   Mathieu Comandon <strider@strycore.com>
+#   Dana Merrick <danadotlol@gmail.com>
 
 set -e
 
